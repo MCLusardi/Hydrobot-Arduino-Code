@@ -1,4 +1,6 @@
 //This is code to read from all three sensors (Electrical Conductivity, pH, and Dissolved Oxygen) at the same time
+//To send a command, first type what sensor it is intended for (EC: for EC sensor, PH: for pH sensor, DO: for DO sensor, AS: for all sensors) 
+//and then type the command (C,0 to turn off; R to read one reading; C,1 to get a reading every second; ect....)
 //Code has been taken from the sample code from Atlas Scientific for each sensor
 //MC Lusardi - 10/27/2020
 
@@ -9,15 +11,18 @@ String command = "";
 
 String DOsensorstring = "";                           //a string to hold the data from the DO sensor
 boolean DOsensor_string_complete = false;             //have we received all the data from the DO sensor
-float DO;                                             //used to hold a floating point number that is the DO
+String DO = "";                                       //used to hold a floating point number that is the DO
+boolean DOvalue_string_complete = false;
 
 String ECsensorstring = "";                           //a string to hold the data from the EC sensor
 boolean ECsensor_string_complete = false;             //have we received all the data from the EC sensor
-float EC;
+String EC = "";                                       //used to hold a floating point number that is the pH
+boolean ECvalue_string_complete = false;
 
 String pHsensorstring = "";                           //a string to hold the data from the pH sensor
 boolean pHsensor_string_complete = false;             //have we received all the data from the pH sensor
-float pH;                                             //used to hold a floating point number that is the pH
+String pH = "";                                        //used to hold a floating point number that is the pH
+boolean pHvalue_string_complete = false;
 
 void setup() {
   Serial.begin(9600);                                 //set baud rate for the hardware serial port_0 to 9600
@@ -69,12 +74,27 @@ void loop() {
     else if(sensorType.compareTo("EC:") == 0) {       //will see if input string begins with "EC:"
       //Serial.print("Sending command to EC: ");
       //Serial.println(command);
+      
       Serial2.print(command);                         //send that string to the EC sensor
       Serial2.print('\r');                            //add a <CR> to the end of the string
     }
     else if(sensorType.compareTo("PH:") == 0){        //will see if input string begins with "PH:"
       //Serial.print("Sending command to PH: ");
       //Serial.println(command);
+      
+      Serial3.print(command);                         //send that string to the pH sensor
+      Serial3.print('\r');                            //add a <CR> to the end of the string
+    }
+    else if(sensorType.compareTo("AS:") == 0){        //will see if input string begins with "PH:"
+      //Serial.print("Sending command to AS: ");
+      //Serial.println(command);
+      
+      Serial1.print(command);                         //send that string to the DO sensor
+      Serial1.print('\r');                            //add a <CR> to the end of the string
+      
+      Serial2.print(command);                         //send that string to the EC sensor
+      Serial2.print('\r');                            //add a <CR> to the end of the string
+      
       Serial3.print(command);                         //send that string to the pH sensor
       Serial3.print('\r');                            //add a <CR> to the end of the string
     }
@@ -89,8 +109,16 @@ void loop() {
 
   //What to do if input comes from the DO sensor
   if (DOsensor_string_complete == true) {               //if a string from the DO sensor has been received in its entirety
-    Serial.print("DO: ");
-    Serial.println(DOsensorstring);                     //send that string to the PC's serial monitor
+    if (isdigit(DOsensorstring[0]) == false) {
+      Serial.print("DO: ");
+      Serial.println(DOsensorstring);                     //send that string to the PC's serial monitor
+    }
+    else {
+      DO = DOsensorstring;
+      DOvalue_string_complete = true;
+      //Serial.print("DO: ");
+      //Serial.println(DO);
+    }
     DOsensorstring = "";
     DOsensor_string_complete = false;
   }
@@ -102,18 +130,37 @@ void loop() {
       Serial.println(ECsensorstring);                 //send that string to the PC's serial monitor
     }
     else {                                            //if the first character in the string is a digit
-      print_EC_data();                                //then call this function
+      get_EC_data();                                  //then call this function
+      Serial.print("EC: ");
+      Serial.println(EC);
     }
     ECsensorstring = "";
     ECsensor_string_complete = false;
   }
 
   //What to do if input comes from the pH sensor
-  if (pHsensor_string_complete == true) {              //if a string from the pH sensor has been received in its entirety
-    Serial.print("PH: ");
-    Serial.println(pHsensorstring);                     //send that string to the PC's serial monitor
+  if (pHsensor_string_complete == true) {             //if a string from the pH sensor has been received in its entirety
+    if (isdigit(pHsensorstring[0]) == false) {
+      Serial.print("PH: ");
+      Serial.println(pHsensorstring);                 //send that string to the PC's serial monitor
+    }
+    else {
+      pH = pHsensorstring;
+      pHvalue_string_complete = true;
+      //Serial.print("PH: ");
+      //Serial.println(pH);
+    }
     pHsensorstring = "";
     pHsensor_string_complete = false;
+  }
+
+  //print data if all three sensors have values available
+  if(ECvalue_string_complete == true  && pHvalue_string_complete == true && DOvalue_string_complete == true) {
+    //Serial.println("Values filled");
+    printData(DO, EC, pH);
+    DOvalue_string_complete = false;                                          //Resetting values
+    ECvalue_string_complete = false;
+    pHvalue_string_complete = false;
   }
 }
 
@@ -134,13 +181,25 @@ String parseCommandInput(String input) {
 }
 
 //EC needs a separate function to print data because it reads in additional values besides the EC value
-void print_EC_data(void) {
-  char ECsensorstring_array[30];                      //we make a char array
-  char *EC;                                           //char pointer used in string parsing
+void get_EC_data(void) {
+  char ECsensorstring_array[30];                          //we make a char array
   
   ECsensorstring.toCharArray(ECsensorstring_array, 30);   //convert the string to a char array
-  EC = strtok(ECsensorstring_array, ",");                 //let's pars the array at each comma
+  EC = strtok(ECsensorstring_array, ",");       //let's pars the array at each comma, (in C++, const char* == string)
+  ECvalue_string_complete = true;
+  //Serial.print("EC:");                                  //we now print each value we parsed separately
+  //Serial.println(EC);                                   //this is the EC value
+}
 
-  Serial.print("EC:");                                //we now print each value we parsed separately
-  Serial.println(EC);                                 //this is the EC value
+void printData(String doValue, String ecValue, String phValue) {
+  /*char resultBuffer[50];
+  sprintf(resultBuffer, "DO: %s, EC: %s, PH: %s", doValue.c_str(), ecValue.c_str(), phValue.c_str());
+  Serial.println(resultBuffer);*/
+
+  Serial.print("DO: ");
+  Serial.print(doValue);
+  Serial.print(", EC: ");
+  Serial.print(ecValue);
+  Serial.print(", PH: ");
+  Serial.println(phValue);
 }
