@@ -131,8 +131,8 @@ void loop() {
     }
     else {                                            //if the first character in the string is a digit
       get_EC_data();                                  //then call this function
-      Serial.print("EC: ");
-      Serial.println(EC);
+      //Serial.print("EC: ");
+      //Serial.println(EC);
     }
     ECsensorstring = "";
     ECsensor_string_complete = false;
@@ -157,8 +157,13 @@ void loop() {
   //print data if all three sensors have values available
   if(ECvalue_string_complete == true  && pHvalue_string_complete == true && DOvalue_string_complete == true) {
     //Serial.println("Values filled");
-    printData(DO, EC, pH);
+    printASData(DO, EC, pH);
     DOvalue_string_complete = false;                                          //Resetting values
+    ECvalue_string_complete = false;
+    pHvalue_string_complete = false;
+  }
+  else if (ECvalue_string_complete == true && pHvalue_string_complete == true) {
+    printECPHData(EC, pH);
     ECvalue_string_complete = false;
     pHvalue_string_complete = false;
   }
@@ -191,7 +196,8 @@ void get_EC_data(void) {
   //Serial.println(EC);                                   //this is the EC value
 }
 
-void printData(String doValue, String ecValue, String phValue) {
+//Prints data from all sensors on one line
+void printASData(String doValue, String ecValue, String phValue) {
   /*char resultBuffer[50];
   sprintf(resultBuffer, "DO: %s, EC: %s, PH: %s", doValue.c_str(), ecValue.c_str(), phValue.c_str());
   Serial.println(resultBuffer);*/
@@ -199,6 +205,14 @@ void printData(String doValue, String ecValue, String phValue) {
   Serial.print("DO: ");
   Serial.print(doValue);
   Serial.print(", EC: ");
+  Serial.print(ecValue);
+  Serial.print(", PH: ");
+  Serial.println(phValue);
+}
+
+//Prints data from just pH and EC sensors on one line
+void printECPHData(String ecValue, String phValue) {
+  Serial.print("EC: ");
   Serial.print(ecValue);
   Serial.print(", PH: ");
   Serial.println(phValue);
