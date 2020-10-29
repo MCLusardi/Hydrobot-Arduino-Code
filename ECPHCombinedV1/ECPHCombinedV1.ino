@@ -19,7 +19,7 @@ float pH;                                             //used to hold a floating 
 void setup() {
   Serial.begin(9600);                                 //set baud rate for the hardware serial port_0 to 9600
   Serial2.begin(9600);                                //set baud rate for software serial port_2 (pins 16 and 17) to 9600
-  Serial3.begin(9600);                                //set baud rate for software serial port_3 to 9600
+  Serial3.begin(9600);                                //set baud rate for software serial port_3 (pins 15 and 14) to 9600
   
   inputstring.reserve(10);                            //set aside some bytes for receiving data from the PC
   ECsensorstring.reserve(30);                         //set aside some bytes for receiving data from EC sensor
