@@ -9,11 +9,13 @@ String command = "";
 
 String ECsensorstring = "";                           //a string to hold the data from the EC sensor
 boolean ECsensor_string_complete = false;             //have we received all the data from the EC sensor
-float EC;
+String EC = "";
+boolean ECvalue_string_complete = false;
 
 String pHsensorstring = "";                           //a string to hold the data from the pH sensor
 boolean pHsensor_string_complete = false;             //have we received all the data from the pH sensor
-float pH;                                             //used to hold a floating point number that is the pH
+String pH = "";
+boolean pHvalue_string_complete = false;
 
 
 void setup() {
@@ -60,6 +62,16 @@ void loop() {
       //Serial.println(command);
       Serial3.print(command);                       //send that string to the pH sensor
       Serial3.print('\r');                              //add a <CR> to the end of the string
+    }
+    else if(sensorType.compareTo("AS:") == 0){
+      Serial.print("Sending command to AS: ");
+      Serial.println("command");
+
+      Serial2.print(command);
+      Serial2.print('\r');
+
+      Serial3.print(command);
+      Serial3.print('\r');
     }
     else {
       Serial.println("incorrect format for command");

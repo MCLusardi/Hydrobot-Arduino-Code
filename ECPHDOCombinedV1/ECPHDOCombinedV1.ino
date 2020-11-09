@@ -61,7 +61,6 @@ void serialEvent3() {                                 //if the hardware serial p
 }
 
 void loop() {
-  //To handle commands to two different sensors, format must begin with EC: or PH: indicating EC or PH sensors respectively
   if (input_string_complete == true) {                //if a string from the PC has been received in its entirety
     sensorType = parseSensorTypeInput(inputstring);
     command = parseCommandInput(inputstring);
