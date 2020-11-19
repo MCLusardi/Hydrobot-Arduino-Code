@@ -61,6 +61,3 @@ void loop() {                                         //here we go...
   sensorstring = "";                                  //clear the string:
   sensor_string_complete = false;                     //reset the flag used to tell if we have received a completed string from the Atlas Scientific product
 }
-
-
-
