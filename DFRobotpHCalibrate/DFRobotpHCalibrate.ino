@@ -22,7 +22,6 @@
 #include <EEPROM.h>
 
 #define PH_PIN1 A1
-#define PH_PIN2 A2
 float voltage,phValue,temperature = 25;
 DFRobot_PH ph;
 
@@ -38,16 +37,12 @@ void loop()
     if(millis()-timepoint>1000U){                  //time interval: 1s
         timepoint = millis();
         //temperature = readTemperature();            // read your temperature sensor to execute temperature compensation
-        voltage1 = analogRead(PH_PIN1)/1024.0*5000;   // read the voltage
-        voltage2 = analogRead(PH_PIN2)/1024.0*5000;   
-        phValue1 = ph.readPH(voltage1,temperature);   // convert voltage to pH with temperature compensation
-        pHValue2 = ph.readPH(voltage2,temperature);
+        voltage = analogRead(PH_PIN1)/1024.0*5000;   // read the voltage
+        phValue = ph.readPH(voltage,temperature);   // convert voltage to pH with temperature compensation
         Serial.print("temperature:");
         Serial.print(temperature,1);
-        Serial.print("^C  pH sensor 4:");
-        Serial.println(phValue1,2);
-        Serial.print("^C  pH sensor 3:");
-        Serial.println(pHValue2,3);
+        Serial.print("^C  pH:");
+        Serial.println(phValue,2);
     }
     ph.calibration(voltage,temperature);           // calibration process by Serail CMD
 }
